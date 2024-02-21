@@ -1,0 +1,13 @@
+Two datasets, s2c2 and s2c5.
+Both s2c2 and s2c5 directories have d[1,2]_X.pkl and d[1,2]_X_classification.pkl files.
+
+d[1,2]_X.pkl have four keys ['train_names','test_names','train_labels','test_labels']
+    ['train_names','test_names'] have IDs for structures
+    ['train_labels','test_labels'] have Temps for structures
+
+d[1,2]_X_classification.pkl have four keys ['train_names','test_names','train_labels','test_labels']
+    ['train_names','test_names'] have IDs for structures
+    ['train_labels','test_labels'] have Temp classification for structures [0,1] for d1_X_classification, [0,1,2,3,4] for d2_X_classification
+
+For d[1,2]_X_, where X in [0,9], each X is an instance of 10-fold CV.
+

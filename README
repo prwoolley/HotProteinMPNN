@@ -1,0 +1,27 @@
+Order of events:
+- Download AF2 models for HotProtein dataset
+  - ./S/S_AF2DatabaseSearch.py (or .ipynb for Jupyter)
+    - Outputs a CSV file with AF2 model url pointers and downloads the models in ./S/AF2/CIF/
+    - Converts from CIF format to PDB format and stores PDB models in ./S/AF2/PDB/
+- Create Pytorch files from PDB files using parse_pdb.py (modified from Baker lab parse_cif_noX.py)
+- Download ProteinMPNN training fasta files
+  - Map ProteinMPNN PDB IDs to UniProt accessions using ./PDB_to_UniProt.py
+  - Download fasta files from mapped UniProt accessions using ./UniProt_to_Fasta.py
+- Compare ProteinMPNN training data to HotProtein. Do they overlap in information content?
+  - Concatenate all ProteinMPNN training fasta files into one file
+  - Concatenate all HotProtein fasta files into one file
+  - Contatenate ProteinMPNN and HotProtein fasta files into one file
+  - Run MMSeqs2 on the last concatenated fasta file using ./ProteinMPNN_HotProtein_mmseqs2/mmseqs2_command.sh
+    - Cluster for 30% sequence similarity, as per ProteinMPNN's training scheme
+- Selectively remove HotProtein observations using ProteinMPNN_HotProtein_filter.py (or .ipynb for Jupyter)
+  - Remove observations that don't have an AF2 structure
+  - Remove observations that fall within a cluster containing a ProteinMPNN structure
+  - For remaining observations, choose the representative protein for each cluster. This is the final training dataset (72695 total structures).
+  - Split the dataset into 80% training and 20% validation sets
+    - Group by temperature class [0,1,2,3,4,[0,1,2],[3,4]]
+    - Randomly select 80% of each group for training and 20% for validation
+- Train the model using the model checkpoint generated from Baker lab training data
+  - run_training_HotProtein.sh bash script.
+    - Baker lab training script expects all training data to be in one directory which the user points to. We first move all train/val split information to the directory with the parsed PDB pytorch files and point to that directory. This is repeated for all temperature ranges before training.
+- Compute perplexity and accuracy for Baker lab test dataset, to observe if forgetting occurred.
+  - run BakerLab_test.py
