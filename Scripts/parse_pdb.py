@@ -1,11 +1,8 @@
+import argparse
 import torch
 import numpy as np
 import Bio.PDB as bp
 import os
-
-# Location of Alphafold2 predicted structures
-#pdbs = '/stor/work/Ellington/ProteinMPNN/HotProtein/s2c5/d2_clean/'
-pdbs = '/stor/work/Ellington/ProteinMPNN/HotProtein/S/AF2/PDB/'
 
 
 RES_NAMES = [
@@ -91,15 +88,7 @@ def parse_af2_pdb(fname, pdb_id):
     #n_atom = max([len(list(r.get_atoms())) for r in residues])
     mask = torch.zeros(n_res, len(ATOM_NAMES))
     bfac = torch.full((n_res, len(ATOM_NAMES)), np.nan) 
-    occ = torch.zeros(n_res, len(ATOM_NAMES))
-    
-    #atoms_per_res = [len(list(r.get_atoms())) for r in residues]
-    #start = 0
-    #for i, n_atoms in enumerate(atoms_per_res):
-    #    end = start + n_atoms
-    #    mask[i, :n_atoms] = 1
-    #    start = end
-        
+    occ = torch.zeros(n_res, len(ATOM_NAMES))        
 
     # Fill in values if atom exists
     for i, r in enumerate(residues):
@@ -123,21 +112,24 @@ def parse_af2_pdb(fname, pdb_id):
     
     return data, metadata
 
-def prep_files(items):
+
+def main(args):
+    items = os.listdir(args.pdb_dir)
     for pdb in items:
-        fname = pdbs+pdb
+        fname = args.pdb_dir+pdb
         if os.path.exists(fname) and os.path.isfile(fname):
             pdb_name = pdb.split('-')[1]
             data, metadata = parse_af2_pdb(fname,pdb_name)
-            torch.save(data,'/stor/work/Ellington/ProteinMPNN/HotProtein/S/PDB_pt/'+pdb_name+'_A.pt')
-            torch.save(data,'/stor/work/Ellington/ProteinMPNN/HotProtein/Models/training_data/pdb/'+pdb_name+'_A.pt')
-            torch.save(metadata,'/stor/work/Ellington/ProteinMPNN/HotProtein/S/PDB_pt/'+pdb_name+'.pt')
-            torch.save(metadata,'/stor/work/Ellington/ProteinMPNN/HotProtein/Models/training_data/pdb/'+pdb_name+'.pt')
-            #with open('/stor/work/Ellington/ProteinMPNN/HotProtein/s2c2_prepped/unrelaxed_model_1_ptm/s2c2.unrelaxed_model_1_ptm.fa', 'a') as file:
-            #    file.write('>'+pdb+'\n'+data['seq']+'\n')
-                
+            torch.save(data,args.pt_output_dir+pdb_name+'_A.pt')
+            torch.save(metadata,args.pt_output_dir+pdb_name+'.pt')
 
-items = os.listdir(pdbs)
-prep_files(items)
+if __name__ == '__main__':
+    argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    argparser.add_argument("--pdb_dir", type=str, default="my_path/AF2/PDB", help="path for directory with UniProt fasta files")
+    argparser.add_argument("--pt_output_dir", type=str, default="my_path/AF2/PT", help="path for where to dump PDB files")
+    
+    args = argparser.parse_args()
+    main(args)
 
 

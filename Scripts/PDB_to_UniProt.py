@@ -1,28 +1,37 @@
-import pandas as pd
-import pickle as pkl
-import os
+import argparse
 from bioservices import UniProt
 
-proteinmpnn_data = pd.read_csv('/stor/work/Ellington/ProteinMPNN/training/ProteinMPNN_training_data/pdb_2021aug02/list.csv')
-proteinmpnn_data = proteinmpnn_data['CHAINID'].str.split('_').str[0].unique()
-proteinmpnn_data = [x.upper() for x in proteinmpnn_data]
-accessions = []
 
-uniprot = UniProt()
-for pdb in proteinmpnn_data:
-    if len(accessions) % 100 == 0:
-        with open('/stor/work/Ellington/ProteinMPNN/HotProtein/ProteinMPNN_TrainingData_UniProtAccessions.txt', 'w') as f:
-            for item in accessions:
-                f.write("%s\n" % item)
-    try:
-        results = uniprot.mapping(fr="PDB", to="UniProtKB",query=pdb)  # ACC for UniProtKB AC (identifier)
-        if results['results']!=[]:
-            accession = results['results'][0]['to']['primaryAccession']
-            accessions.append(accession)
-        else:
+
+def main(args):
+    with open(args.pdb_txt, 'r') as file:
+        pdbs = [line.strip() for line in file]
+    pdbs = [x.upper() for x in pdbs]
+    accessions = []
+    uniprot = UniProt()
+    for pdb in pdbs:
+        if len(accessions) % 100 == 0: # Save checkpoint every 100 accessions
+            with open(args.csv_output, 'w') as f:
+                for item in accessions:
+                    f.write("%s\n" % item)
+        try:
+            results = uniprot.mapping(fr="PDB", to="UniProtKB",query=pdb)  # ACC for UniProtKB AC (identifier)
+            if results['results'] != []:
+                accession = results['results'][0]['to']['primaryAccession']
+                accessions.append(f"{accession},{pdb}")
+            else:
+                continue
+        except Exception:
             continue
-    except Exception:
-        continue
-with open('/stor/work/Ellington/ProteinMPNN/HotProtein/ProteinMPNN_TrainingData_UniProtAccessions.txt', 'w') as f:
-    for item in accessions:
-        f.write("%s\n" % item)
+    with open(args.csv_output, 'w') as f:
+        for item in accessions:
+            f.write("%s\n" % item)
+
+if __name__ == '__main__':
+    argparser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+    argparser.add_argument("--pdb_txt", type=str, default="my_path/pdbs.txt", help="path for text file with PDB IDs")
+    argparser.add_argument("--csv_output", type=str, default="my_path/pdb_uniprot.csv", help="path for outputting PDB IDs and mapped UniProt accessions")
+    
+    args = argparser.parse_args()
+    main(args)
