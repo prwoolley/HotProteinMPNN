@@ -1,24 +1,11 @@
 import argparse
-import os.path
-import json, time, os, sys, glob
+import glob
 import csv
-import shutil
-import warnings
 import numpy as np
 import torch
-from torch import optim
-from torch.utils.data import DataLoader
-from dateutil import parser
-import queue
-import copy
-import torch.nn as nn
-import torch.nn.functional as F
-import random
-import os.path
-import subprocess
-from concurrent.futures import ProcessPoolExecutor    
+from dateutil import parser 
 from utils_mmCIF import worker_init_fn, get_pdbs, loader_pdb, PDB_dataset, StructureDataset, StructureLoader
-from model_utils_Baker import featurize, loss_smoothed, loss_nll, get_std_opt, ProteinMPNN
+from model_utils_mmCIF import featurize, loss_nll, ProteinMPNN
 
 # This function is pulled from utils_Baker.py but modified for testing
 def build_training_clusters(params):
