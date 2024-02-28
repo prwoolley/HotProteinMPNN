@@ -17,8 +17,8 @@ def main(args):
     import os.path
     import subprocess
     from concurrent.futures import ProcessPoolExecutor    
-    from utils_PDB import worker_init_fn, get_pdbs, loader_pdb, build_training_clusters, PDB_dataset, StructureDataset, StructureLoader
-    from model_utils_PDB import featurize, loss_smoothed, loss_nll, get_std_opt, ProteinMPNN
+    from utils_AF2_PDB import worker_init_fn, get_pdbs, loader_pdb, build_training_clusters, PDB_dataset, StructureDataset, StructureLoader
+    from model_utils_AF2_PDB import featurize, loss_smoothed, loss_nll, get_std_opt, ProteinMPNN
 
     scaler = torch.cuda.amp.GradScaler()
      
