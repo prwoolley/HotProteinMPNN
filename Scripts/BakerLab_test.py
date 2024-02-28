@@ -17,7 +17,7 @@ import random
 import os.path
 import subprocess
 from concurrent.futures import ProcessPoolExecutor    
-from utils_Baker import worker_init_fn, get_pdbs, loader_pdb, PDB_dataset, StructureDataset, StructureLoader
+from utils_mmCIF import worker_init_fn, get_pdbs, loader_pdb, PDB_dataset, StructureDataset, StructureLoader
 from model_utils_Baker import featurize, loss_smoothed, loss_nll, get_std_opt, ProteinMPNN
 
 # This function is pulled from utils_Baker.py but modified for testing
